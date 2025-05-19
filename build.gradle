@@ -1,0 +1,108 @@
+
+plugins {
+  id 'application'
+     // emöglichst Java-FX Einbindung:
+  id 'org.openjfx.javafxplugin' version '0.0.8'   
+
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'war'
+
+
+repositories {
+    mavenCentral()
+}
+
+
+ext {
+    libsVersions = [
+            gradleGae        : "1.9.49",
+            resteasy         : "3.0.19.Final",
+            jackson          : "2.8.7",
+            servletApi       : "2.5",
+            lombok           : "1.16.12",
+            slf4jLog4j12     : "1.7.22",
+            Jsoup            : "1.9.2",
+            slf4jLog4j12     : "1.7.22"
+    ]
+    libraries = [
+        servletApi       : "javax.servlet:servlet-api:${libsVersions.servletApi}",
+        resteasy         : [
+                "org.jboss.resteasy:resteasy-jaxrs:${libsVersions.resteasy}",
+                "org.jboss.resteasy:resteasy-jackson2-provider:${libsVersions.resteasy}"
+        ],
+        jackson          : ["com.fasterxml.jackson.core:jackson-annotations:${libsVersions.jackson}",
+                            "com.fasterxml.jackson.core:jackson-databind:${libsVersions.jackson}"
+        ],
+        Jsoup            : "org.jsoup:jsoup:${libsVersions.Jsoup}",
+    ]
+}
+
+dependencies {
+
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.5.2')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.5.2')
+	compile 'com.h2database:h2:1.4.200' 
+	compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.12.Final'
+	// https://mvnrepository.com/artifact/com.microsoft.sqlserver/sqljdbc4
+	compile 'log4j:log4j:1.2.17'
+	compile 'commons-logging:commons-logging:1.2'
+
+	compileOnly libraries.servletApi
+    compile libraries.resteasy
+
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-multipart-provider', version: '3.0.19.Final'
+
+    compile libraries.Jsoup
+    compile libraries.jackson
+
+    compileOnly "org.projectlombok:lombok:${libsVersions.lombok}"
+
+	
+}
+
+
+
+
+jar {
+
+  
+	// Ein "fat-JAR" (dickes JAR) erzeugen, d.h. alle nötigen libraries mit ins JAR packen
+	// Wird in Windwos die Dateiendung "JAR" dann mit dem Befehl "{pfad}/bin/java -jar" assoziert, 
+	// kann jede JAR-App mit Dopppelclick gestartet werden. 
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+mainClassName = "com.mci.defecttracker.view.MainView"
+
+    
+//test {
+	//testLogging.showStandardStreams = true
+   	//useJUnitPlatform {  
+		// Testmethoden filtern mit Java Annotationen @Tag("schnell")
+//     includeTags 'schnell', 'lahm'
+//     excludeTags 'ganz-lahm'
+    //}
+//}       
+
+/*
+*	JavaFX - Modulspezifikation
+*	***************************
+*
+*	JavaFX als Grafik-Bibliothek ist modulular aufgebaut. Verwendete Module müssen hier explizit eingebunden werden.
+*/
+javafx {
+    version = "11"
+    // JavaFX ist modular aufgebaut. Die in der FX-Applikation verwendeten Module müssen hier aufgeführt werden:
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+tasks.withType(JavaExec) {
+    if (System.getProperty('DEBUG', 'false') == 'true') {
+        jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9099'
+    }
+}
+

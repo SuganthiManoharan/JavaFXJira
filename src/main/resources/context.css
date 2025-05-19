@@ -1,0 +1,23 @@
+
+.context-menu {
+  -fx-background-color: #006699;
+  -fx-text-fill: white;
+}
+
+.menu-item .label {
+  -fx-text-fill: yellow;
+}
+
+.menu-item:focused .label {
+  -fx-text-fill: white;
+}
+
+.texterror {  
+     -fx-text-box-border: red ;
+     -fx-list-view-border: red;
+     -fx-focus-color: red ;
+     -fx-border-color:red;  
+}	
+
+
+.list-cell { -fx-text-fill: black; /* 5 */ }
